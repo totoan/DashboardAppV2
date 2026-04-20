@@ -40,24 +40,52 @@ var ramCalculator = app.Services.GetRequiredService<RamCalculator>();
 var netCalculator = app.Services.GetRequiredService<NetworkCalculator>();
 var authService = app.Services.GetRequiredService<AuthService>();
 
+async Task RefreshYouTubeUploadsAsync()
+{
+    Console.WriteLine($"[YT] Refresh started at {DateTime.Now}");
+
+    await authService.InitializeAsync();
+
+    if (string.IsNullOrWhiteSpace(authService.AccessToken))
+    {
+        Console.WriteLine("[YT] Refresh skipped: no access token available.");
+        return;
+    }
+
+    var youtubeService = new YouTubeService(authService.AccessToken);
+    var uploads = await youtubeService.GetUploadsAsync();
+
+    await hubContext.Clients.All.SendAsync("ReceiveUploads", uploads);
+
+    Console.WriteLine($"[YT] Refresh complete!");
+}
+
 _ = Task.Run(async () =>
 {
     var random = new Random();
 
     while (true)
     {
-        var (networkIn, networkOut) = netCalculator.GetNetworkUsage();
-
-        var usage = new SystemUsage
+        try
         {
-            Cpu = cpuCalculator.GetCpuUsage(),
-            Gpu = gpuCalculator.GetGpuUsage(),
-            Ram = ramCalculator.GetRamUsage(),
-            NetworkIn = networkIn,
-            NetworkOut = networkOut,
-        };
+            var (networkIn, networkOut) = netCalculator.GetNetworkUsage();
 
-        await hubContext.Clients.All.SendAsync("ReceiveMetrics", usage);
+            var usage = new SystemUsage
+            {
+                Cpu = cpuCalculator.GetCpuUsage(),
+                Gpu = gpuCalculator.GetGpuUsage(),
+                Ram = ramCalculator.GetRamUsage(),
+                NetworkIn = networkIn,
+                NetworkOut = networkOut,
+            };
+
+            await hubContext.Clients.All.SendAsync("ReceiveMetrics", usage);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"[Metrics] Error: {ex.Message}");
+        }
+        
         await Task.Delay(1000);
     }
 });
@@ -66,45 +94,34 @@ _ = Task.Run(async () =>
 {
     try
     {
-        await authService.InitializeAsync();
+        await RefreshYouTubeUploadsAsync();
 
-        if (!string.IsNullOrWhiteSpace(authService.AccessToken))
-        {
-            var youtubeService = new YouTubeService(authService.AccessToken);
-            var uploads = await youtubeService.GetUploadsAsync();
+        using var timer = new PeriodicTimer(TimeSpan.FromMinutes(15));
 
-            await hubContext.Clients.All.SendAsync("ReceiveUploads", uploads);
-            Console.WriteLine($"YouTube uploads refreshed at {DateTime.Now}");
-        }
-        else
+        while (await timer.WaitForNextTickAsync())
         {
-            Console.WriteLine("YouTube refresh skipped: no access token available.");
+            try
+            {
+                await RefreshYouTubeUploadsAsync();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[YT Auto] Error: {ex.Message}");
+            }
         }
     }
     catch (Exception ex)
     {
-        Console.WriteLine($"YouTube auto-refresh failed: {ex.Message}");
+        Console.WriteLine($"[YT Auto] Fatal loop error: {ex.Message}");
     }
-
-    await Task.Delay(TimeSpan.FromMinutes(15));
 });
 
-app.MapPost("/api/youtube/refresh", async(IHubContext<MetricsHub> hubContext, AuthService authService) =>
+app.MapPost("/api/youtube/refresh", async() =>
 {
-    try{
-    await authService.InitializeAsync();
-
-    if (string.IsNullOrWhiteSpace(authService.AccessToken))
+    try
     {
-        return Results.BadRequest("Access token was not available.");
-    }
-
-    var youtubeService = new YouTubeService(authService.AccessToken);
-    var uploads = await youtubeService.GetUploadsAsync();
-
-    await hubContext.Clients.All.SendAsync("ReceiveUploads", uploads);
-
-    return Results.Ok(uploads);
+        await RefreshYouTubeUploadsAsync();
+        return Results.Ok("YouTube uploads refreshed.");
     }
     catch (Exception ex)
     {
