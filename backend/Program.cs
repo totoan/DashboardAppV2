@@ -12,6 +12,7 @@ builder.Services.AddSingleton<CpuCalculator>();
 builder.Services.AddSingleton<GpuCalculator>();
 builder.Services.AddSingleton<RamCalculator>();
 builder.Services.AddSingleton<NetworkCalculator>();
+builder.Services.AddSingleton<StorageCalculator>();
 
 builder.Services.AddSingleton<AuthService>();
 
@@ -38,6 +39,7 @@ var cpuCalculator = app.Services.GetRequiredService<CpuCalculator>();
 var gpuCalculator = app.Services.GetRequiredService<GpuCalculator>();
 var ramCalculator = app.Services.GetRequiredService<RamCalculator>();
 var netCalculator = app.Services.GetRequiredService<NetworkCalculator>();
+var storCalculator = app.Services.GetRequiredService<StorageCalculator>();
 var authService = app.Services.GetRequiredService<AuthService>();
 
 async Task RefreshYouTubeUploadsAsync()
@@ -69,6 +71,14 @@ _ = Task.Run(async () =>
         try
         {
             var (networkIn, networkOut) = netCalculator.GetNetworkUsage();
+            var storage = storCalculator.GetStorageUsage();
+
+            var storageDrives = storage.Select(d => new StorageDrive
+            {
+                Name = d.Name,
+                Size = d.Size,
+                InUse = d.InUse
+            }).ToList();
 
             var usage = new SystemUsage
             {
@@ -77,6 +87,7 @@ _ = Task.Run(async () =>
                 Ram = ramCalculator.GetRamUsage(),
                 NetworkIn = networkIn,
                 NetworkOut = networkOut,
+                Storage = storageDrives,
             };
 
             await hubContext.Clients.All.SendAsync("ReceiveMetrics", usage);

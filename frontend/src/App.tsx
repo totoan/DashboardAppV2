@@ -4,6 +4,7 @@ import NetworkTile from "./components/NetworkTile";
 import { startMetricsConnection, refreshYouTubeUploads } from "./services/signalrService";
 import type { SystemUsage } from "./models/systemUsage";
 import type { SubscriptionVideo } from "./models/youtubeUploads";
+import StorageTile from "./components/StorageTile";
 
 function App() {
   const [usage, setUsage] = useState<SystemUsage>({
@@ -12,6 +13,7 @@ function App() {
     ram: 0,
     networkIn: 0,
     networkOut: 0,
+    storage: []
   });
 
   const [uploads, setUploads] = useState<SubscriptionVideo[]>([]);
@@ -53,7 +55,7 @@ function App() {
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1.2fr 1.5fr", gap: "16px", margin: "16px"}}>
               <MetricTile title="Memory" value={`${usage.ram.toFixed(1)}%`} />
               <NetworkTile title="Network" valueOut={`${(usage.networkOut / 1000).toFixed(1)} kB/s`} valueIn={`${(usage.networkIn / 1000).toFixed(1)} kB/s`} />
-              <MetricTile title="Storage" value="0" />
+              <StorageTile title="Storage" drives={usage.storage} />
             </div>
           </div>
         </section>
