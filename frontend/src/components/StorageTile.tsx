@@ -17,8 +17,7 @@ function StorageTile({ title, drives }: StorageTileProps) {
             borderRadius: "10px",
             padding: "16px",
             color: "white",
-            }}
-        >
+            }}>
             <div style={{ fontSize: "18px", marginBottom: "8px" }}>{title}</div>
 
             {drives.map((drive) => {

@@ -42,6 +42,8 @@ var netCalculator = app.Services.GetRequiredService<NetworkCalculator>();
 var storCalculator = app.Services.GetRequiredService<StorageCalculator>();
 var authService = app.Services.GetRequiredService<AuthService>();
 
+var logger = new MetricsLogger();
+
 async Task RefreshYouTubeUploadsAsync()
 {
     Console.WriteLine($"[YT] Refresh started at {DateTime.Now}");
@@ -64,7 +66,8 @@ async Task RefreshYouTubeUploadsAsync()
 
 _ = Task.Run(async () =>
 {
-    var random = new Random();
+    DateTime lastLogTime = DateTime.MinValue;
+    string currentLabel = "idle";
 
     while (true)
     {
@@ -91,6 +94,21 @@ _ = Task.Run(async () =>
             };
 
             await hubContext.Clients.All.SendAsync("ReceiveMetrics", usage);
+
+            if ((DateTime.Now - lastLogTime) >= TimeSpan.FromSeconds(5))
+            {
+                await logger.SaveSnapshotAsync(
+                    usage.Cpu,
+                    usage.Gpu,
+                    usage.Ram,
+                    usage.NetworkIn,
+                    usage.NetworkOut,
+                    currentLabel
+                );
+
+                Console.WriteLine("[Logger] Metrics recorded!");
+                lastLogTime = DateTime.Now;
+            }
         }
         catch (Exception ex)
         {
