@@ -33,3 +33,17 @@ export async function refreshYouTubeUploads(): Promise<void> {
         throw new Error("Failed to refresh YouTube uploads.");
     }
 }
+
+export async function setCurrentState(state: string): Promise<void> {
+    const response = await fetch("http://localhost:5185/api/state/update", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ state }),
+    });
+
+    if (!response.ok) {
+        throw new Error("Failed to update state.");
+    }
+}

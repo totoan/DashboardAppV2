@@ -15,6 +15,8 @@ builder.Services.AddSingleton<NetworkCalculator>();
 builder.Services.AddSingleton<StorageCalculator>();
 
 builder.Services.AddSingleton<AuthService>();
+builder.Services.AddSingleton<CurrentStateService>();
+builder.Services.AddSingleton<MetricsLogger>();
 
 builder.Services.AddCors(options =>
 {
@@ -42,7 +44,8 @@ var netCalculator = app.Services.GetRequiredService<NetworkCalculator>();
 var storCalculator = app.Services.GetRequiredService<StorageCalculator>();
 var authService = app.Services.GetRequiredService<AuthService>();
 
-var logger = new MetricsLogger();
+var logger = app.Services.GetRequiredService<MetricsLogger>();
+var currentStateService = app.Services.GetRequiredService<CurrentStateService>();
 
 async Task RefreshYouTubeUploadsAsync()
 {
@@ -67,7 +70,6 @@ async Task RefreshYouTubeUploadsAsync()
 _ = Task.Run(async () =>
 {
     DateTime lastLogTime = DateTime.MinValue;
-    string currentLabel = "idle";
 
     while (true)
     {
@@ -103,10 +105,9 @@ _ = Task.Run(async () =>
                     usage.Ram,
                     usage.NetworkIn,
                     usage.NetworkOut,
-                    currentLabel
+                    currentStateService.CurrentState
                 );
 
-                Console.WriteLine("[Logger] Metrics recorded!");
                 lastLogTime = DateTime.Now;
             }
         }
@@ -158,4 +159,14 @@ app.MapPost("/api/youtube/refresh", async() =>
     }
 });
 
+app.MapPost("/api/state/update", (StateUpdateRequest request, CurrentStateService stateService) =>
+{
+    stateService.SetState(request.State);
+    Console.WriteLine($"[State] Current state updated to: {request.State}");
+
+    return Results.Ok();
+});
+
 app.Run();
+
+public record StateUpdateRequest(string State);

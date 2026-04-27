@@ -5,6 +5,7 @@ import { startMetricsConnection, refreshYouTubeUploads } from "./services/signal
 import type { SystemUsage } from "./models/systemUsage";
 import type { SubscriptionVideo } from "./models/youtubeUploads";
 import StorageTile from "./components/StorageTile";
+import StateSelector from "./components/StateSelector";
 
 function App() {
   const [usage, setUsage] = useState<SystemUsage>({
@@ -86,6 +87,9 @@ function App() {
           </div>
         </section>
 
+      </div>
+      <div>
+        <StateSelector />
       </div>
     </div>
   );
