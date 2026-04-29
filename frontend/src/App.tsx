@@ -1,11 +1,14 @@
 import { useEffect, useState } from "react";
 import MetricTile from "./components/MetricTile";
 import NetworkTile from "./components/NetworkTile";
-import { startMetricsConnection, refreshYouTubeUploads } from "./services/signalrService";
-import type { SystemUsage } from "./models/systemUsage";
-import type { SubscriptionVideo } from "./models/youtubeUploads";
 import StorageTile from "./components/StorageTile";
 import StateSelector from "./components/StateSelector";
+import YouTubeTile from "./components/YouTubeTile";
+
+import { startMetricsConnection, refreshYouTubeUploads } from "./services/signalrService";
+
+import type { SystemUsage } from "./models/systemUsage";
+import type { SubscriptionVideo } from "./models/youtubeUploads";
 
 function App() {
   const [usage, setUsage] = useState<SystemUsage>({
@@ -61,32 +64,7 @@ function App() {
           </div>
         </section>
 
-        <section 
-          className="yt-panel-wrapper" 
-          style={{ margin: "16px", maxHeight: "300px", display: "grid", gridTemplateRows: "1fr auto"}}
-          >
-          <div className="youtube-panel" style={{ textAlign: "left", textWrapMode: "nowrap", overflowY: "auto", overflowX: "hidden"}}>
-            {uploads.map((video) => (
-              <div
-                key={`${video.channelTitle}-${video.publishedAt}-${video.title}`}
-                style={{display: "flex", gap: "12px", marginBottom: "5px", color: "white"}}>
-                <img
-                  src={video.thumbnailUrl}
-                  alt={video.title}
-                  style={{ width: "120px", borderRadius: "8px" }}/>
-                <div>
-                  <div>{video.title}</div>
-                  <div>{video.channelTitle}</div>
-                  <div>{new Date(video.publishedAt).toLocaleString()}</div>
-                </div>
-              </div>
-            ))}
-          </div>
-          <div>
-            <button onClick={handleRefreshYouTube}>YT Refresh</button>
-          </div>
-        </section>
-
+        <YouTubeTile uploads={uploads} onRefresh={handleRefreshYouTube}/>
       </div>
       <div>
         <StateSelector />

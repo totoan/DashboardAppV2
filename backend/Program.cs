@@ -13,10 +13,9 @@ builder.Services.AddSingleton<GpuCalculator>();
 builder.Services.AddSingleton<RamCalculator>();
 builder.Services.AddSingleton<NetworkCalculator>();
 builder.Services.AddSingleton<StorageCalculator>();
-
 builder.Services.AddSingleton<AuthService>();
-builder.Services.AddSingleton<CurrentStateService>();
 builder.Services.AddSingleton<MetricsLogger>();
+builder.Services.AddSingleton<CurrentStateService>();
 
 builder.Services.AddCors(options =>
 {
@@ -43,7 +42,6 @@ var ramCalculator = app.Services.GetRequiredService<RamCalculator>();
 var netCalculator = app.Services.GetRequiredService<NetworkCalculator>();
 var storCalculator = app.Services.GetRequiredService<StorageCalculator>();
 var authService = app.Services.GetRequiredService<AuthService>();
-
 var logger = app.Services.GetRequiredService<MetricsLogger>();
 var currentStateService = app.Services.GetRequiredService<CurrentStateService>();
 
