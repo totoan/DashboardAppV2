@@ -66,6 +66,18 @@ body {
   margin: 0;
 }
 
+.clock-container{
+  margin: 20px;
+}
+
+.clock{
+  color: white;
+  font-size: 30px;
+  font-weight: bold;
+  font-family: monospace;
+  text-align: center;
+}
+
 h1,
 h2 {
   font-family: var(--heading);

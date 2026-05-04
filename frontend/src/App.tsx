@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import DigitalClock from "./components/DigitalClock";
 import MetricTile from "./components/MetricTile";
 import NetworkTile from "./components/NetworkTile";
 import StorageTile from "./components/StorageTile";
@@ -46,8 +47,14 @@ function App() {
   };
 
   return (
-    <div className="window" style={{ padding: "20px", backgroundColor: "#1b1616", minHeight: "100vh"}}>
-      <h1 style={{ color: "white" }}>Dashboard</h1>
+    <div className="window" style={{ padding: "20px", backgroundColor: "#1b1616", minHeight: "100vh" }}>
+
+      <div className="title-bar" style={{ display: "grid", gridTemplateColumns: "1fr 1.5fr 1fr" }}>
+        <DigitalClock/>
+        <h1 style={{ color: "white" }}>Dashboard</h1>
+        <></>
+      </div>
+      
       <div className="main-layout" style={{ display: "grid", gridTemplateColumns: "1.5fr 1fr" }}>
         
         <section className="metrics-panel">
