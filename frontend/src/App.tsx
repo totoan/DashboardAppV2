@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import DigitalClock from "./components/DigitalClock";
+import Calendar from "./components/Calendar";
 import MetricTile from "./components/MetricTile";
 import NetworkTile from "./components/NetworkTile";
 import StorageTile from "./components/StorageTile";
@@ -52,7 +53,7 @@ function App() {
       <div className="title-bar" style={{ display: "grid", gridTemplateColumns: "1fr 1.5fr 1fr" }}>
         <DigitalClock/>
         <h1 style={{ color: "white" }}>Dashboard</h1>
-        <></>
+        <Calendar/>
       </div>
       
       <div className="main-layout" style={{ display: "grid", gridTemplateColumns: "1.5fr 1fr" }}>
