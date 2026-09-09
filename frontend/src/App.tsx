@@ -26,7 +26,7 @@ function App() {
 
   const [uploads, setUploads] = useState<SubscriptionVideo[]>([]);
 
-  const [LeftPanel, setLeftPanel] = useState<LeftPanel>("metrics");
+  const [LeftPanel, setLeftPanel] = useState<LeftPanel>("images");
 
   useEffect(() => {
     const connect = async (): Promise<void> => {
@@ -80,24 +80,24 @@ function App() {
         {/* LEFT SIDE */}
         <section>
           {/* SWITCHABLE LEFT PANEL */}
-          {LeftPanel === "metrics" && (
+          <div style={{display: LeftPanel === "metrics" ? "block" : "none"}}>
             <div className="metrics-panel">
               <div style={{ display: "grid", gridTemplateRows: "1fr 1fr" }}>
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
-                <MetricTile title="CPU" value={`${usage.cpu.toFixed(1)}%`} />
-                <MetricTile title="GPU" value={`${usage.gpu.toFixed(1)}%`} />
-              </div>
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1.2fr 1.5fr", gap: "16px", margin: "16px"}}>
-                <MetricTile title="Memory" value={`${usage.ram.toFixed(1)}%`} />
-                <NetworkTile title="Network" valueOut={`${(usage.networkOut / 1000).toFixed(1)} kB/s`} valueIn={`${(usage.networkIn / 1000).toFixed(1)} kB/s`} />
-                <StorageTile title="Storage" drives={usage.storage} />
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
+                  <MetricTile title="CPU" value={`${usage.cpu.toFixed(1)}%`} />
+                  <MetricTile title="GPU" value={`${usage.gpu.toFixed(1)}%`} />
+                </div>
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1.2fr 1.5fr", gap: "16px", margin: "16px"}}>
+                  <MetricTile title="Memory" value={`${usage.ram.toFixed(1)}%`} />
+                  <NetworkTile title="Network" valueOut={`${(usage.networkOut / 1000).toFixed(1)} kB/s`} valueIn={`${(usage.networkIn / 1000).toFixed(1)} kB/s`} />
+                  <StorageTile title="Storage" drives={usage.storage} />
+                </div>
               </div>
             </div>
           </div>
-          )}
-          {LeftPanel === "images" && (
+          <div style={{display: LeftPanel === "images" ? "block" : "none"}}>
             <ImageSlideshow />
-          )}
+          </div>
         </section>
 
         {/* RIGHT SIDE - ALWAYS VISIBLE */}
