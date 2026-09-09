@@ -3,6 +3,8 @@ using DashboardBackend.Hubs;
 using DashboardBackend.Models;
 using DashboardBackend.Services;
 using Microsoft.AspNetCore.SignalR;
+using Microsoft.AspNetCore.StaticFiles;
+using Microsoft.Extensions.FileProviders;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -14,7 +16,6 @@ builder.Services.AddSingleton<RamCalculator>();
 builder.Services.AddSingleton<NetworkCalculator>();
 builder.Services.AddSingleton<StorageCalculator>();
 builder.Services.AddSingleton<AuthService>();
-builder.Services.AddSingleton<MetricsLogger>();
 builder.Services.AddSingleton<CurrentStateService>();
 
 builder.Services.AddCors(options =>
@@ -42,8 +43,8 @@ var ramCalculator = app.Services.GetRequiredService<RamCalculator>();
 var netCalculator = app.Services.GetRequiredService<NetworkCalculator>();
 var storCalculator = app.Services.GetRequiredService<StorageCalculator>();
 var authService = app.Services.GetRequiredService<AuthService>();
-var logger = app.Services.GetRequiredService<MetricsLogger>();
 var currentStateService = app.Services.GetRequiredService<CurrentStateService>();
+var slideshowFolder = @"N:\Pictures\DashboardSlideshow";
 
 async Task RefreshYouTubeUploadsAsync()
 {
@@ -67,8 +68,6 @@ async Task RefreshYouTubeUploadsAsync()
 
 _ = Task.Run(async () =>
 {
-    DateTime lastLogTime = DateTime.MinValue;
-
     while (true)
     {
         try
@@ -94,20 +93,6 @@ _ = Task.Run(async () =>
             };
 
             await hubContext.Clients.All.SendAsync("ReceiveMetrics", usage);
-
-            if ((DateTime.Now - lastLogTime) >= TimeSpan.FromSeconds(5))
-            {
-                await logger.SaveSnapshotAsync(
-                    usage.Cpu,
-                    usage.Gpu,
-                    usage.Ram,
-                    usage.NetworkIn,
-                    usage.NetworkOut,
-                    currentStateService.CurrentState
-                );
-
-                lastLogTime = DateTime.Now;
-            }
         }
         catch (Exception ex)
         {
@@ -157,12 +142,37 @@ app.MapPost("/api/youtube/refresh", async() =>
     }
 });
 
-app.MapPost("/api/state/update", (StateUpdateRequest request, CurrentStateService stateService) =>
+if (!Directory.Exists(slideshowFolder))
 {
-    stateService.SetState(request.State);
-    Console.WriteLine($"[State] Current state updated to: {request.State}");
+    Directory.CreateDirectory(slideshowFolder);
+}
 
-    return Results.Ok();
+app.UseStaticFiles(new StaticFileOptions
+{
+    FileProvider = new PhysicalFileProvider(slideshowFolder),
+    RequestPath = "/slideshow"
+});
+
+app.MapGet("/api/slideshow/images", () =>
+{
+    var allowedExtensions = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+    {
+        ".jpg",
+        ".jpeg",
+        ".png",
+        ".webp",
+        ".gif",
+        ".bmp"
+    };
+
+    var images = Directory
+        .EnumerateFiles(slideshowFolder)
+        .Where(file => allowedExtensions.Contains(Path.GetExtension(file)))
+        .Select(file => $"/slideshow/{Uri.EscapeDataString(Path.GetFileName(file))}")
+        .OrderBy(path => path)
+        .ToArray();
+
+    return Results.Ok(images);
 });
 
 app.Run();
