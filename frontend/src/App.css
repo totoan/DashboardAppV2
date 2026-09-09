@@ -182,3 +182,9 @@
     border-right-color: var(--border);
   }
 }
+
+#pin {
+  text-align: center;
+  font-size: 28px;
+  letter-spacing: 10px;
+}
