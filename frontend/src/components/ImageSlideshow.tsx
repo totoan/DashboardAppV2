@@ -4,7 +4,7 @@ const BACKEND_URL = "http://localhost:5185";
 
 const SLIDE_INTERVAL = 17000;
 const FADE_DURATION = 700;
-const HISTORY_SIZE = 5;
+const HISTORY_SIZE = 20;
 
 function ImageSlideshow() {
   const [images, setImages] = useState<string[]>([]);

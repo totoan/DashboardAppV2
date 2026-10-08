@@ -5,6 +5,8 @@ using DashboardBackend.Services;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.Extensions.FileProviders;
+using System.Net.Sockets;
+using System.Net.Http.Json;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -489,6 +491,35 @@ app.MapGet("/upload-icon.png", () =>
     return Results.File(iconPath, "image/png");
 });
 
+app.MapGet("/api/nova/status", async () =>
+{
+    try
+    {
+        using var httpClient = new HttpClient
+        {
+            Timeout = TimeSpan.FromSeconds(2)
+        };
+
+        var response = await httpClient.GetFromJsonAsync<NovaStatusResponse>(
+            "http://127.0.0.1:8765/api/status"
+        );
+
+        return Results.Ok(new
+        {
+            status = response?.Status ?? "offline"
+        });
+    }
+    catch
+    {
+        return Results.Ok(new
+        {
+            status = "offline"
+        });
+    }
+});
+
+
 app.Run();
 
 public record StateUpdateRequest(string State);
+public record NovaStatusResponse(string Status);

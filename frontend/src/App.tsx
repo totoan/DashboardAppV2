@@ -6,6 +6,7 @@ import NetworkTile from "./components/NetworkTile";
 import StorageTile from "./components/StorageTile";
 import YouTubeTile from "./components/YouTubeTile";
 import ImageSlideshow from "./components/ImageSlideshow";
+import NovaStatus from "./components/NovaStatus";
 
 import { startMetricsConnection, refreshYouTubeUploads } from "./services/signalrService";
 
@@ -54,8 +55,9 @@ function App() {
   return (
     <div className="window" style={{ padding: "20px", backgroundColor: "#1b1616", minHeight: "100vh" }}>
 
-      <div className="title-bar" style={{ display: "grid", gridTemplateColumns: "1fr 1.5fr 1fr" }}>
+      <div className="title-bar" style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr 1fr" }}>
         <DigitalClock/>
+        <NovaStatus/>
         <h1 style={{ color: "white" }}>Dashboard</h1>
         <Calendar/>
       </div>
