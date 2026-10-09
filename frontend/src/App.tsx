@@ -8,7 +8,7 @@ import YouTubeTile from "./components/YouTubeTile";
 import ImageSlideshow from "./components/ImageSlideshow";
 import NovaStatus from "./components/NovaStatus";
 
-import { startMetricsConnection, refreshYouTubeUploads } from "./services/signalrService";
+import { startMetricsConnection, refreshYouTubeUploads, getYouTubeUploads } from "./services/signalrService";
 
 import type { SystemUsage } from "./models/systemUsage";
 import type { SubscriptionVideo } from "./models/youtubeUploads";
@@ -31,22 +31,39 @@ function App() {
 
   useEffect(() => {
     const connect = async (): Promise<void> => {
-      await startMetricsConnection(
-        (metrics) => {
+      await startMetricsConnection((metrics) => {
         setUsage(metrics);
-        },
-        (videos) => {
-        setUploads(videos);
-        }
-      );
+      });
     };
 
     connect();
+
+  const loadYouTube = async (): Promise<void> => {
+    try {
+      const videos = await getYouTubeUploads();
+
+      if (videos.length === 0) {
+        window.setTimeout(loadYouTube, 2000);
+        return;
+      }
+
+      setUploads(videos);
+    } catch (error) {
+      console.error("Initial YouTube load failed:", error);
+
+      window.setTimeout(loadYouTube, 2000);
+    }
+  };
+
+    loadYouTube();
   }, []);
 
   const handleRefreshYouTube = async (): Promise<void> => {
     try {
       await refreshYouTubeUploads();
+
+      const videos = await getYouTubeUploads();
+      setUploads(videos);
     } catch (error) {
       console.error(error);
     }

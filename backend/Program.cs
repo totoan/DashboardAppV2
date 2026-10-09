@@ -46,6 +46,7 @@ var netCalculator = app.Services.GetRequiredService<NetworkCalculator>();
 var storCalculator = app.Services.GetRequiredService<StorageCalculator>();
 var authService = app.Services.GetRequiredService<AuthService>();
 var currentStateService = app.Services.GetRequiredService<CurrentStateService>();
+var latestYouTubeUploads = new List<SubscriptionVideo>();
 
 var slideshowFolder = builder.Configuration["Slideshow:Folder"]
     ?? throw new InvalidOperationException(
@@ -76,7 +77,7 @@ async Task RefreshYouTubeUploadsAsync()
     var youtubeService = new YouTubeService(authService.AccessToken);
     var uploads = await youtubeService.GetUploadsAsync();
 
-    await hubContext.Clients.All.SendAsync("ReceiveUploads", uploads);
+    latestYouTubeUploads = uploads.ToList();
 
     Console.WriteLine($"[YT] Refresh complete!");
 }
@@ -166,6 +167,11 @@ app.UseStaticFiles(new StaticFileOptions
 {
     FileProvider = new PhysicalFileProvider(slideshowFolder),
     RequestPath = "/slideshow"
+});
+
+app.MapGet("/api/youtube/uploads", () =>
+{
+    return Results.Ok(latestYouTubeUploads);
 });
 
 app.MapGet("/api/slideshow/images", () =>

@@ -13,6 +13,8 @@ function ImageSlideshow() {
   const recentImages = useRef<number[]>([]);
 
   useEffect(() => {
+    let retryTimer: number | undefined;
+
     const loadImages = async () => {
       try {
         const response = await fetch(`${BACKEND_URL}/api/slideshow/images`);
@@ -20,27 +22,35 @@ function ImageSlideshow() {
         if (!response.ok) {throw new Error("Failed to load slideshow images.");}
 
         const imagePaths: string[] = await response.json();
+        if (imagePaths.length === 0) {
+          retryTimer = window.setTimeout(loadImages, 2000);
+          return;
+        }
+
         const fullUrls = imagePaths.map((path) => `${BACKEND_URL}${path}`);
 
         setImages(fullUrls);
 
-        if (fullUrls.length > 0) {
-          const firstIndex = Math.floor(
-            Math.random() * fullUrls.length
-          );
-
-          setCurrentImage(firstIndex);
-          recentImages.current = [firstIndex];
-        }
-      } catch (error) {
-        console.error(
-          "[Slideshow] Failed to load images:",
-          error
+        const firstIndex = Math.floor(
+          Math.random() * fullUrls.length
         );
+
+        setCurrentImage(firstIndex);
+        recentImages.current = [firstIndex];
+      } catch (error) {
+        console.log(
+          "[Slideshow] Backend not ready yet.",
+        );
+        retryTimer = window.setTimeout(loadImages, 2000);
       }
     };
 
     loadImages();
+    return() => {
+      if (retryTimer !== undefined) {
+        window.clearTimeout(retryTimer);
+      }
+    }
   }, []);
 
   const chooseNextImage = () => {

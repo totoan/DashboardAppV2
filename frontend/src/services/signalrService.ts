@@ -5,8 +5,7 @@ import type { SubscriptionVideo } from "../models/youtubeUploads";
 let connection: signalR.HubConnection | null = null;
 
 export async function startMetricsConnection(
-    onMetricsReceived: (data: SystemUsage) => void,
-    onUploadsReceived: (data: SubscriptionVideo[]) => void,
+    onMetricsReceived: (data: SystemUsage) => void
 ): Promise<void> {
     connection = new signalR.HubConnectionBuilder()
         .withUrl("http://localhost:5185/metricsHub")
@@ -17,11 +16,22 @@ export async function startMetricsConnection(
         onMetricsReceived(data);
     });
 
-    connection.on("ReceiveUploads", (data: SubscriptionVideo[]) => {
-        onUploadsReceived(data);
-    });
+    while (true) {
+        try {
+            await connection.start();
 
-    await connection.start();
+            console.log("[SignalR] Metrics connected.");
+            break;
+        } catch (error) {
+            console.log(
+                "[SignalR] Backend not ready. Retrying in 2 seconds..."
+            );
+
+            await new Promise((resolve) =>
+                setTimeout(resolve, 2000)
+            );
+        }
+    }
 }
 
 export async function refreshYouTubeUploads(): Promise<void> {
@@ -32,6 +42,18 @@ export async function refreshYouTubeUploads(): Promise<void> {
     if (!response.ok) {
         throw new Error("Failed to refresh YouTube uploads.");
     }
+}
+
+export async function getYouTubeUploads(): Promise<SubscriptionVideo[]> {
+    const response = await fetch(
+        "http://localhost:5185/api/youtube/uploads"
+    );
+
+    if (!response.ok) {
+        throw new Error("Failed to get YouTube uploads.");
+    }
+
+    return await response.json();
 }
 
 export async function setCurrentState(state: string): Promise<void> {
