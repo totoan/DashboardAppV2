@@ -1,0 +1,18 @@
+.wearable-panel {
+    margin-top: 20px;
+    padding: 16px;
+    color: #eef6ee;
+    background: #242020;
+    border: 1px solid #666;
+    border-radius: 8px;
+}
+
+.wearable-panel h2 { margin: 0 0 12px; }
+.wearable-status { display: flex; gap: 20px; flex-wrap: wrap; }
+.wearable-status strong { color: #8cdfa3; }
+.wearable-settings { display: flex; align-items: end; flex-wrap: wrap; gap: 12px; margin-top: 14px; }
+.wearable-settings label { display: flex; flex-direction: column; gap: 6px; }
+.wearable-settings input { min-width: 230px; padding: 8px; color: white; background: #181515; border: 1px solid #777; border-radius: 4px; }
+.wearable-settings button { padding: 9px 12px; }
+.wearable-settings button:disabled { opacity: .5; }
+.wearable-message { margin-bottom: 0; overflow-wrap: anywhere; }

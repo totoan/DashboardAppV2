@@ -1,3 +1,4 @@
+using DashboardBackend.Wearable.Services;
 using DashboardApp;
 using DashboardBackend.Hubs;
 using DashboardBackend.Models;
@@ -12,12 +13,21 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddSignalR();
 
+// Keep wearable networking in its own folder and listener.
+builder.Services.AddHostedService<WearableServer>();
+
 builder.Services.AddSingleton<CpuCalculator>();
 builder.Services.AddSingleton<GpuCalculator>();
 builder.Services.AddSingleton<RamCalculator>();
 builder.Services.AddSingleton<NetworkCalculator>();
 builder.Services.AddSingleton<StorageCalculator>();
 builder.Services.AddSingleton<AuthService>();
+builder.Services.AddSingleton<YouTubeUploadCache>();
+builder.Services.AddSingleton<WearableYouTubeService>(services =>
+    new WearableYouTubeService(
+        services.GetRequiredService<YouTubeUploadCache>(),
+        () => services.GetRequiredService<AuthService>().AccessToken
+    ));
 builder.Services.AddSingleton<CurrentStateService>();
 
 builder.Services.AddCors(options =>
@@ -46,7 +56,7 @@ var netCalculator = app.Services.GetRequiredService<NetworkCalculator>();
 var storCalculator = app.Services.GetRequiredService<StorageCalculator>();
 var authService = app.Services.GetRequiredService<AuthService>();
 var currentStateService = app.Services.GetRequiredService<CurrentStateService>();
-var latestYouTubeUploads = new List<SubscriptionVideo>();
+var youtubeUploadCache = app.Services.GetRequiredService<YouTubeUploadCache>();
 
 var slideshowFolder = builder.Configuration["Slideshow:Folder"]
     ?? throw new InvalidOperationException(
@@ -77,7 +87,7 @@ async Task RefreshYouTubeUploadsAsync()
     var youtubeService = new YouTubeService(authService.AccessToken);
     var uploads = await youtubeService.GetUploadsAsync();
 
-    latestYouTubeUploads = uploads.ToList();
+    youtubeUploadCache.Update(uploads);
 
     Console.WriteLine($"[YT] Refresh complete!");
 }
@@ -171,7 +181,7 @@ app.UseStaticFiles(new StaticFileOptions
 
 app.MapGet("/api/youtube/uploads", () =>
 {
-    return Results.Ok(latestYouTubeUploads);
+    return Results.Ok(youtubeUploadCache.Read().Videos);
 });
 
 app.MapGet("/api/slideshow/images", () =>

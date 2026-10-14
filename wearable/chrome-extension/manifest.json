@@ -1,0 +1,22 @@
+{
+    "manifest_version": 3,
+    "name": "Pi Wearable YouTube Controller",
+    "version": "0.2.0",
+    "description": "Control one selected YouTube tab from your paired Pi wearable.",
+    "minimum_chrome_version": "120",
+    "permissions": ["storage", "alarms", "scripting"],
+    "host_permissions": ["https://www.youtube.com/*"],
+    "background": {
+        "service_worker": "background.js",
+        "type": "module"
+    },
+    "action": {
+        "default_title": "Pi Wearable YouTube Controller",
+        "default_popup": "popup.html"
+    },
+    "content_scripts": [{
+        "matches": ["https://www.youtube.com/*"],
+        "js": ["youtube_content.js"],
+        "run_at": "document_idle"
+    }]
+}

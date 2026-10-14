@@ -48,6 +48,8 @@ public class RelatedPlaylists
 // -- Playlist Items --
 public class SubscriptionVideo
 {
+    public string VideoId { get; set; } = "";
+    public string ChannelId { get; set; } = "";
     public string Title { get; set; } = "";
     public string ChannelTitle { get; set; } = "";
     public string ThumbnailUrl { get; set; } = "";
@@ -66,6 +68,7 @@ public class PlaylistItem
 
 public class PlaylistSnippet
 {
+    public string channelId { get; set; } = "";
     public string title { get; set; } = "";
     public string channelTitle { get; set; } = "";
     public DateTime publishedAt { get; set; }

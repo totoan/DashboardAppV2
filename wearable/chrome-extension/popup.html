@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Pi Wearable YouTube Controller</title>
+    <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+    <h1>Pi Wearable</h1>
+    <p id="status" role="status">Loading controller…</p>
+    <label for="address">Dashboard backend</label>
+    <input id="address" value="ws://localhost:5186/wearable/socket">
+    <label for="key">Pairing key</label>
+    <input id="key" type="password" autocomplete="off">
+    <div class="buttons">
+        <button id="connect">Save and connect</button>
+        <button id="forget">Forget key</button>
+    </div>
+    <label for="tabs">YouTube tab to control</label>
+    <select id="tabs"></select>
+    <div class="buttons">
+        <button id="refresh">Refresh tabs</button>
+        <button id="select">Use selected tab</button>
+    </div>
+    <p id="message" aria-live="polite"></p>
+    <script type="module" src="popup.js"></script>
+</body>
+</html>

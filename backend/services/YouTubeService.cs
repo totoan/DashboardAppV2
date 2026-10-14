@@ -120,6 +120,8 @@ public class YouTubeService
                 {
                     subVideos.Add(new SubscriptionVideo
                     {
+                        VideoId = item.snippet.resourceId.videoId,
+                        ChannelId = item.snippet.channelId,
                         Title = item.snippet.title,
                         ChannelTitle = item.snippet.channelTitle,
                         ThumbnailUrl = item.snippet.thumbnails.medium.url,

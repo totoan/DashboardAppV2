@@ -7,6 +7,7 @@ import StorageTile from "./components/StorageTile";
 import YouTubeTile from "./components/YouTubeTile";
 import ImageSlideshow from "./components/ImageSlideshow";
 import NovaStatus from "./components/NovaStatus";
+import WearablePanel from "./wearable/components/WearablePanel";
 
 import { startMetricsConnection, refreshYouTubeUploads, getYouTubeUploads } from "./services/signalrService";
 
@@ -72,10 +73,12 @@ function App() {
   return (
     <div className="window" style={{ padding: "20px", backgroundColor: "#1b1616", minHeight: "100vh" }}>
 
-      <div className="title-bar" style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr 1fr" }}>
+      <div className="title-bar" style={{ display: "grid", gridTemplateColumns: "1.2fr 1fr 1fr 1fr" }}>
         <DigitalClock/>
-        <NovaStatus/>
-        <h1 style={{ color: "white" }}>Dashboard</h1>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "flex-start", paddingBottom: "20px", paddingLeft: "25px" }}>
+          <NovaStatus/>
+        </div>
+        <h1 style={{ color: "white", paddingRight: "25px" }}>Dashboard</h1>
         <Calendar/>
       </div>
       
@@ -122,6 +125,8 @@ function App() {
         {/* RIGHT SIDE - ALWAYS VISIBLE */}
         <YouTubeTile uploads={uploads} onRefresh={handleRefreshYouTube}/>
       </div>
+
+      <WearablePanel />
     </div>
   );
 }
