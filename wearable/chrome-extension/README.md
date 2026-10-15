@@ -12,7 +12,7 @@ needed in this extension.
 3. Enable **Developer mode**, choose **Load unpacked**, and select:
 
    ```text
-   N:\Projects\VSCodeProjects\DashboardAppV2\wearable\chrome-extension
+   DashboardAppV2\wearable\chrome-extension
    ```
 
 4. Open the extension from Chrome's extensions menu (pin it for easy access).
@@ -25,7 +25,7 @@ needed in this extension.
 7. In CMD, launch the wearable preview:
 
    ```bat
-   cd /d N:\Projects\PiApp
+   cd /d PiApp
    preview.cmd
    ```
 
