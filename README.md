@@ -4,7 +4,7 @@ A modular local desktop dashboard that combines real-time PC monitoring, media i
 
 > Built as a personal daily-use control hub rather than a standalone demo application.
 
-![Dashboard screenshot](docs/dashboard-overview.png
+![Dashboard screenshot](docs/dashboard-overview.png)
 
 ## Overview
 
